@@ -297,5 +297,9 @@ files:
         ToDoList('todolist.todolist').run_tests()
   learner_created: false
 feedback_link: https://hyperskill.org/projects/105/stages/572/implement
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations! Continue on <a href="https://hyperskill.org/projects/105/stages/572/implement">JetBrains
+    Academy</a>
+  time: Tue, 11 Aug 2020 22:01:28 UTC
 record: -1
