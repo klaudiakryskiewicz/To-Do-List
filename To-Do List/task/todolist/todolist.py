@@ -30,7 +30,9 @@ session = Session()
 menu = """1) Today's tasks
 2) Week's tasks
 3) All tasks
-4) Add task
+4) Missed tasks
+5) Add task
+6) Delete task
 0) Exit"""
 
 print(menu)
@@ -44,7 +46,7 @@ def day_task(day):
         for i, row in zip(range(rows.count()), rows):
             print(f"{i+1}.{row.task}")
     else:
-        print("Nothing to do!\n")
+        print("Nothing to do!")
 
 
 def daterange(start_date, end_date):
@@ -53,22 +55,38 @@ def daterange(start_date, end_date):
 
 
 while choice != 0:
+    print("")
+    #today's tasks
     if choice == 1:
-        day_task(datetime.today())
+        day_task(datetime.today().date())
 
+    #week's tasks
     elif choice == 2:
         for day in daterange(datetime.today(), datetime.today() + timedelta(days=7)):
             day_task(day)
             print("")
 
+    #all tasks
     elif choice == 3:
         rows = session.query(Table).order_by(Table.deadline)
-        for row in rows:
-            print(f"{row.task}. {str(row.deadline.day)} {calendar.month_abbr[row.deadline.month]}")
+        if rows.count() >0:
+            for row in rows:
+                print(f"{row.task}. {str(row.deadline.day)} {calendar.month_abbr[row.deadline.month]}")
         else:
             print("Nothing to do!")
 
+    #missed tasks
     elif choice == 4:
+        rows = session.query(Table).filter(Table.deadline < datetime.today().date()).order_by(Table.deadline)
+        if rows.count() > 0:
+            print("Missed tasks:")
+            for row in rows:
+                print(f"{row.task}. {str(row.deadline.day)} {calendar.month_abbr[row.deadline.month]}")
+        else:
+            print("Nothing is missed!")
+
+    #add task
+    elif choice == 5:
         task = input("Enter task\n")
         deadline = input("Enter deadline\n")
         new_row = Table(task=task)
@@ -77,8 +95,20 @@ while choice != 0:
         new_row.deadline = deadline
         session.add(new_row)
         session.commit()
-        print("The task has been added!\n")
+        print("The task has been added!")
 
+    #delete task
+    elif choice == 6:
+        print("Choose the number of the task you want to delete")
+        rows = session.query(Table).order_by(Table.deadline)
+        if rows.count() > 0:
+            for i, row in zip(range(rows.count()),rows):
+                print(f"{i+1}. {row.task}. {str(row.deadline.day)} {calendar.month_abbr[row.deadline.month]}")
+            task_number = int(input())
+            session.delete(rows[task_number-1])
+            session.commit()
+            print("The task has been deleted!")
+    print("")
     print(menu)
     choice = int(input())
 
